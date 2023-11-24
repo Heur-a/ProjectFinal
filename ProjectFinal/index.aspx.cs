@@ -1,6 +1,7 @@
 ﻿// index.aspx.cs
 
 using System;
+using System.Configuration;
 using System.Data;
 using System.Data.SQLite;
 
@@ -20,6 +21,9 @@ namespace ProjectFinal
                 // Use a relative path from your project's working directory to reference the database.
                 string databasePath = Server.MapPath("~/database2.db");
                 string connectionString = $"Data Source={databasePath};Version=3;";
+
+                int userId = GetUserIdFromDatabase(txtUsername.Text); 
+                Session["UserID"] = userId;
 
                 using (SQLiteConnection connection = new SQLiteConnection(connectionString))
                 {
@@ -74,6 +78,36 @@ namespace ProjectFinal
                 // Handle exceptions, log them, or display an error message.
                 Response.Write($"An error occurred: {ex.Message}");
             }
+        }
+
+        private int GetUserIdFromDatabase(string username)
+        {
+            int userId = 0;
+
+            // Use a relative path from your project's working directory to reference the database.
+            string databasePath = Server.MapPath("~/database2.db");
+            string connectionString = $"Data Source={databasePath};Version=3;";
+
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT id FROM user WHERE username = @Username";
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", username);
+
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            userId = Convert.ToInt32(reader["id"]);
+                        }
+                    }
+                }
+            }
+
+            return userId;
         }
     }
 }
