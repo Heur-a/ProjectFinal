@@ -5,7 +5,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Administrator Page</title>
-    <style>
+    <html xmlns="http://www.w3.org/1999/xhtml">
+    <style >
         table {
             border-collapse: collapse;
             width: 100%;
@@ -22,6 +23,9 @@
             background-color: #f2f2f2;
         }
     </style>
+    <link rel="stylesheet" href="paginaAdmin.css" />
+
+
 </head>
 <body>
     <form id="form1" runat="server">
@@ -29,7 +33,7 @@
             <h2>Welcome Administrator</h2>
 
             <h3>Students:</h3>
-            <asp:GridView ID="gvStudents" runat="server" AutoGenerateColumns="False">
+            <asp:GridView ID="gvStudents"  DataKeyNames="id" runat="server" AutoGenerateColumns="False" OnRowDeleting="deleteStudents" >
                 <Columns>
                     <asp:BoundField DataField="id" HeaderText="User ID" />
                     <asp:BoundField DataField="name" HeaderText="Name" />
@@ -38,12 +42,17 @@
                     <asp:BoundField DataField="dateOfBirth" HeaderText="Date of Birth" />
                     <asp:BoundField DataField="nationality" HeaderText="Nationality" />
                     <asp:BoundField DataField="address" HeaderText="Address" />
+                                        <asp:TemplateField HeaderText="Actions">
+    <ItemTemplate>
+        <asp:LinkButton ID="lnkDelete" runat="server" Text="Delete" CommandName="Delete" OnClientClick="return confirm('Are you sure you want to delete this student from the subject?');" />
+    </ItemTemplate>
+</asp:TemplateField>
                 </Columns>
             </asp:GridView>
 
             <!-- Rest of your existing ASPX code -->
 
-<asp:Panel ID="pnlAddStudentToDatabase" runat="server" Visible="true">
+<asp:Panel ID="pnlAddStudentToDatabase"  runat="server" Visible="true">
     <h3>Add Student to Database:</h3>
     <asp:TextBox ID="txtNewStudentName" runat="server" placeholder="Student Name"></asp:TextBox>
     <asp:TextBox ID="txtNewStudentSurname" runat="server" placeholder="Student Surname"></asp:TextBox>
@@ -61,20 +70,30 @@
 
 
             <h3>Professors:</h3>
-            <asp:GridView ID="gvProfessors" runat="server" AutoGenerateColumns="False">
+            <asp:GridView ID="gvProfessors" runat="server" DataKeyNames="id" AutoGenerateColumns="False" OnRowDeleting="deleteProfessors">
                 <Columns>
                     <asp:BoundField DataField="id" HeaderText="User ID" />
                     <asp:BoundField DataField="name" HeaderText="Name" />
                     <asp:BoundField DataField="surrname" HeaderText="Surname" />
+                  <asp:TemplateField HeaderText="Actions">
+    <ItemTemplate>
+        <asp:LinkButton ID="lnkDelete" runat="server" Text="Delete" CommandName="Delete" OnClientClick="return confirm('Are you sure you want to delete this student from the subject?');" />
+    </ItemTemplate>
+</asp:TemplateField>
                 </Columns>
             </asp:GridView>
 
             <h3>Subjects:</h3>
-            <asp:GridView ID="gvSubjects" runat="server" AutoGenerateColumns="False">
+            <asp:GridView ID="gvSubjects" runat="server" DataKeyNames="idsubject" AutoGenerateColumns="False">
                 <Columns>
                     <asp:BoundField DataField="idsubject" HeaderText="Subject ID" />
                     <asp:BoundField DataField="subjectName" HeaderText="Subject Name" />
                     <asp:BoundField DataField="description" HeaderText="Description" />
+                    <asp:TemplateField HeaderText="Actions">
+    <ItemTemplate>
+        <asp:LinkButton ID="lnkDelete" runat="server" Text="Delete" CommandName="Delete" OnClientClick="return confirm('Are you sure you want to delete this student from the subject?');" />
+    </ItemTemplate>
+</asp:TemplateField>
                     
                 </Columns>
             </asp:GridView>
@@ -91,7 +110,9 @@
     <asp:DropDownList ID="ddlUsers" runat="server" DataTextField="UserName" DataValueField="UserId" AppendDataBoundItems="true">
        
     </asp:DropDownList>
-    <asp:TextBox ID="DateAddStudentSubject" runat="server" placeholder="dd-mm-YYYY" TextMode="DateTime"></asp:TextBox>
+    <asp:TextBox ID="DateAddStudentSubject" runat="server" placeholder="YYYY" TextMode="number"></asp:TextBox>
+    <asp:TextBox ID="CreditAddStudentSubject" runat="server" placeholder="credits" TextMode="number"></asp:TextBox>
+    
     <asp:Button ID="Button1" runat="server" Text="Add Student" OnClick="btnAddStudentToSubject_Click" />
 </asp:Panel>
 
@@ -99,7 +120,7 @@
             <!-- New GridView for Students in the Subject -->
             <h3>Students for Subject:</h3>
             <div>
-            <asp:GridView ID="gvStudentsForSubject" runat="server" AutoGenerateColumns="False" OnRowDeleting="gvStudentsForSubject_RowDeleting">
+            <asp:GridView ID="gvStudentsForSubject" runat="server" DataKeyNames="id" AutoGenerateColumns="False" OnRowDeleting="deleteMatricula">
                 <Columns>
                     <asp:BoundField DataField="id" HeaderText="User ID" />
                     <asp:BoundField DataField="name" HeaderText="Name" />
@@ -120,11 +141,16 @@
 
             <!-- New GridView for Professors in the Subject -->
             <h3>Professors for Subject:</h3>
-            <asp:GridView ID="gvProfessorsForSubject" runat="server" AutoGenerateColumns="False">
+            <asp:GridView ID="gvProfessorsForSubject" DataKeyNames="id" runat="server" AutoGenerateColumns="False" OnRowDeleting="deleteMatricula">
                 <Columns>
                     <asp:BoundField DataField="id" HeaderText="User ID" />
                     <asp:BoundField DataField="name" HeaderText="Name" />
                     <asp:BoundField DataField="surrname" HeaderText="Surname" />
+                    <asp:TemplateField HeaderText="Actions">
+    <ItemTemplate>
+        <asp:LinkButton ID="lnkDelete" runat="server" Text="Delete" CommandName="Delete" OnClientClick="return confirm('Are you sure you want to delete this student from the subject?');" />
+    </ItemTemplate>
+</asp:TemplateField>
                 </Columns>
             </asp:GridView>
 
@@ -133,8 +159,9 @@
     <asp:DropDownList ID="DropDownListProf" runat="server" DataTextField="UserName" DataValueField="UserId" AppendDataBoundItems="true">
         
     </asp:DropDownList>
-                    <asp:TextBox ID="TextBoxProfDate" runat="server" Placeholder="Date.." TextMode="Date"></asp:TextBox>
-
+                    <asp:TextBox ID="TextBoxProfDate" runat="server" Placeholder="YYYY" TextMode="number"></asp:TextBox>
+                    
+    <asp:TextBox ID="CreditAddProfSubject" runat="server" placeholder="credits" TextMode="number"></asp:TextBox>
     <asp:Button ID="ButtonAddTeacher" runat="server" Text="Add Teacher" OnClick="ButtonAddTeacher_OnClick" />
 </asp:Panel>
 

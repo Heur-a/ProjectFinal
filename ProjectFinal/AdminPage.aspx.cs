@@ -163,6 +163,8 @@ namespace ProjectFinal
             }
         }
 
+       
+
         private void LoadProfessorsForSubject(string subjectId)
         {
             string databasePath = Server.MapPath("~/database2.db");
@@ -171,9 +173,8 @@ namespace ProjectFinal
             {
                 connection.Open();
 
-                string query = "SELECT user.*, GROUP_CONCAT(subject.subjectName) AS Subjects " +
+                string query = "SELECT user.*" +
                                "FROM user " +
-                               "LEFT JOIN subject ON user.id = subject.idsubject " +
                                "INNER JOIN subject_has_user ON user.id = subject_has_user.user_id " +
                                $"WHERE user.role_idrole = 2 AND subject_has_user.subject_idsubject = {subjectId} " +
                                "GROUP BY user.id";
@@ -188,10 +189,11 @@ namespace ProjectFinal
             }
         }
 
-        protected void gvStudentsForSubject_RowDeleting(object sender, GridViewDeleteEventArgs e)
+        protected void deleteMatricula(object sender, GridViewDeleteEventArgs e)
         {
             // Get the user ID and subject ID of the selected row
-            string userId = gvStudentsForSubject.DataKeys[e.RowIndex].Values["id"].ToString();
+            string userId = gvStudentsForSubject.DataKeys
+                [e.RowIndex].Values["id"].ToString();
             string subjectId = ddlSubjects.SelectedValue;
 
             // Implement the logic for deletion in the database
@@ -200,6 +202,35 @@ namespace ProjectFinal
             // Refresh the data
             LoadStudentsForSubject(subjectId);
         }
+
+        protected void deleteStudents(object sender, GridViewDeleteEventArgs e)
+        {
+            // Get the user ID and subject ID of the selected row
+            string userId = gvStudents.DataKeys
+                [e.RowIndex]["id"].ToString();
+            string subjectId = ddlSubjects.SelectedValue;
+
+            // Implement the logic for deletion in the database
+            DeleteUser(userId);
+
+            LoadStudents();
+
+        }
+
+        protected void deleteProfessors(object sender, GridViewDeleteEventArgs e)
+        {
+            // Get the user ID and subject ID of the selected row
+            string userId = gvProfessors.DataKeys
+                [e.RowIndex].Values["id"].ToString();
+            string subjectId = ddlSubjects.SelectedValue;
+
+            // Implement the logic for deletion in the database
+            DeleteUser(userId);
+
+            LoadProfessors();
+        }
+
+
 
         private void DeleteUserSubjectEntry(string userId, string subjectId)
         {
@@ -214,7 +245,7 @@ namespace ProjectFinal
                     connection.Open();
 
                     // Create the SQL command to delete the entry from user_has_subject
-                    string query = "DELETE FROM user_has_subject WHERE user_id = @userId AND subject_idsubject = @subjectId";
+                    string query = "DELETE FROM subject_has_user WHERE user_id = @userId AND subject_idsubject = @subjectId";
 
                     using (SQLiteCommand command = new SQLiteCommand(query, connection))
                     {
@@ -233,12 +264,47 @@ namespace ProjectFinal
             catch (Exception ex)
             {
                 // In case of an error, show an error message (you can customize it as needed)
-                Response.Write("Error deleting student from the subject.");
+                Response.Write($"Error deleting student from the subject. {ex} ");
                 // You can also add logic to log the error if needed
             }
         }
 
-        private void AddStudentToSubject(string studentName, string subjectName)
+        private void DeleteUser(string userId)
+        {
+            try
+            {
+                // Establish connection with the database
+                string databasePath = Server.MapPath("~/database2.db");
+                string connectionString = $"Data Source={databasePath};Version=3;";
+
+                using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Create the SQL command to delete the entry from user_has_subject
+                    string query = "DELETE FROM user WHERE id = @userId";
+
+                    using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                    {
+                        // Add parameters to prevent SQL injection
+                        command.Parameters.AddWithValue("@userId", userId);
+
+                        // Execute the delete command
+                        command.ExecuteNonQuery();
+                    }
+                }
+
+                // Show a success message (you can customize it as needed)
+                Response.Write("Student deleted from the subject successfully");
+            }
+            catch (Exception ex)
+            {
+                // In case of an error, show an error message (you can customize it as needed)
+                Response.Write($"Error deleting student from the subject. {ex} ");
+                // You can also add logic to log the error if needed
+            }
+        }
+        private void AddStudentToSubject(string studentName, string subjectName, string Date, int Credits)
         {
             try
             {
@@ -269,23 +335,26 @@ namespace ProjectFinal
                                 if (subjectId != null)
                                 {
                                     // Comprova si ja existeix una entrada per a aquest estudiant i aquesta assignatura
-                                    string checkQuery = "SELECT COUNT(*) FROM user_has_subject WHERE user_id = @userId AND subject_idsubject = @subjectId";
+                                    string checkQuery = "SELECT COUNT(*) FROM subject_has_user WHERE user_id = @userId AND subject_idsubject = @subjectId AND YearCoursed= @YearCoursed";
                                     using (SQLiteCommand checkCommand = new SQLiteCommand(checkQuery, connection))
                                     {
                                         checkCommand.Parameters.AddWithValue("@userId", userId);
                                         checkCommand.Parameters.AddWithValue("@subjectId", subjectId);
+                                        checkCommand.Parameters.AddWithValue("@YearCoursed", Date);
 
                                         int existingEntries = Convert.ToInt32(checkCommand.ExecuteScalar());
 
                                         if (existingEntries == 0)
                                         {
                                             // Crea la comanda SQL per afegir l'estudiant a la signatura
-                                            string insertQuery = "INSERT INTO user_has_subject (user_id, subject_idsubject) VALUES (@userId, @subjectId);";
+                                            string insertQuery = "INSERT INTO subject_has_user (user_id, subject_idsubject, YearCoursed ,credits) VALUES (@userId, @subjectId, @YearCoursed, @Credits)";
                                             using (SQLiteCommand insertCommand = new SQLiteCommand(insertQuery, connection))
                                             {
                                                 // Afegeix els paràmetres per evitar injeccions SQL
                                                 insertCommand.Parameters.AddWithValue("@userId", userId);
                                                 insertCommand.Parameters.AddWithValue("@subjectId", subjectId);
+                                                insertCommand.Parameters.AddWithValue("@YearCoursed", Date);
+                                                insertCommand.Parameters.AddWithValue("@Credits", Credits);
 
                                                 // Executa la comanda d'afegir
                                                 insertCommand.ExecuteNonQuery();
@@ -319,7 +388,7 @@ namespace ProjectFinal
             catch (Exception ex)
             {
                 // En cas d'error, mostra un missatge d'error (pots adaptar-ho segons les teves necessitats)
-                Response.Write("<script>alert('Error en afegir l'estudiant a la signatura.');</script>");
+                Response.Write("Error en afegir l'estudiant a la signatura");
                 // També pots afegir lògica per registrar l'error si és necessari
             }
         }
@@ -400,6 +469,8 @@ namespace ProjectFinal
         {
             string selectedStudentId = ddlUsers.SelectedValue;
             string selectedSubjectId = ddlSubjects.SelectedValue;
+            string Date = DateAddStudentSubject.Text;
+            int credits = int.Parse(CreditAddStudentSubject.Text);
 
             if (!string.IsNullOrEmpty(selectedStudentId) && !string.IsNullOrEmpty(selectedSubjectId))
             {
@@ -407,8 +478,8 @@ namespace ProjectFinal
                 if (IsStudent(selectedStudentId))
                 {
                     // Add the student to the subject
-                    AddStudentToSubject(selectedStudentId, selectedSubjectId);
-
+                    AddStudentToSubject(selectedStudentId, selectedSubjectId, Date, credits);
+                    
                     // Clear the selected student in the DropDownList
                     ddlUsers.ClearSelection();
 
@@ -548,14 +619,3 @@ namespace ProjectFinal
 
     }
 }
-
-
-
-
-
-
-
-
-
-
-    
