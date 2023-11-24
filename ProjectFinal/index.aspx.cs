@@ -15,56 +15,64 @@ namespace ProjectFinal
 
         protected void btnLogin_Click(object sender, EventArgs e)
         {
-            // Utilitza una ruta relativa des del directori de treball del teu projecte per referenciar la base de dades.
-            string databasePath = Server.MapPath("~/database2.db");
-            string connectionString = $"Data Source={databasePath};Version=3;";
-
-            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            try
             {
-                connection.Open();
+                // Use a relative path from your project's working directory to reference the database.
+                string databasePath = Server.MapPath("~/database2.db");
+                string connectionString = $"Data Source={databasePath};Version=3;";
 
-                string query = "SELECT user.*, role.role AS RoleName FROM user " +
-                               "INNER JOIN role ON user.role_idrole = role.idrole " +
-                               "WHERE username = @Username AND password = @Password";
-
-                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                using (SQLiteConnection connection = new SQLiteConnection(connectionString))
                 {
-                    command.Parameters.AddWithValue("@Username", txtUsername.Text);
-                    command.Parameters.AddWithValue("@Password", txtPassword.Text);
+                    connection.Open();
 
-                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    string query = "SELECT user.*, role.role AS RoleName FROM user " +
+                                   "INNER JOIN role ON user.role_idrole = role.idrole " +
+                                   "WHERE username = @Username AND password = @Password";
+
+                    using (SQLiteCommand command = new SQLiteCommand(query, connection))
                     {
-                        if (reader.HasRows)
-                        {
-                            while (reader.Read())
-                            {
-                                string roleName = reader["RoleName"].ToString();
+                        command.Parameters.AddWithValue("@Username", txtUsername.Text);
+                        command.Parameters.AddWithValue("@Password", txtPassword.Text);
 
-                                // Realitza la comprovació del rol i redirigeix segons sigui admin, profesor o user.
-                                switch (roleName)
+                        using (SQLiteDataReader reader = command.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
                                 {
-                                    case "admin":
-                                        Response.Redirect("PaginaAdmin.aspx");
-                                        break;
-                                    case "profesor":
-                                        Response.Redirect("PaginaProfesor.aspx");
-                                        break;
-                                    case "user":
-                                        Response.Redirect("PaginaUser.aspx");
-                                        break;
-                                    default:
-                                        Response.Write("Rol no reconegut");
-                                        break;
+                                    string roleName = reader["RoleName"].ToString();
+
+                                    // Check the role and redirect accordingly, whether it's admin, teacher, or user.
+                                    switch (roleName)
+                                    {
+                                        case "admin":
+                                            Response.Redirect("AdminPage.aspx");
+                                            break;
+                                        case "teacher":
+                                            Response.Redirect("TeacherPage.aspx");
+                                            break;
+                                        case "user":
+                                            Response.Redirect("UserPage.aspx");
+                                            break;
+                                        default:
+                                            Response.Write("Role not recognized");
+                                            break;
+                                    }
                                 }
                             }
-                        }
-                        else
-                        {
-                            // Credencials incorrectes, pots mostrar un missatge d'error.
-                            Response.Write("Credencials incorrectes");
+                            else
+                            {
+                                // Incorrect credentials, you can display an error message.
+                                Response.Write("Incorrect credentials");
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions, log them, or display an error message.
+                Response.Write($"An error occurred: {ex.Message}");
             }
         }
     }
