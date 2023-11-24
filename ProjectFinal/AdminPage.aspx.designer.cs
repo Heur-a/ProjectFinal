@@ -96,6 +96,15 @@ namespace ProjectFinal
         protected global::System.Web.UI.WebControls.TextBox txtNewStudentUsername;
 
         /// <summary>
+        /// txtNewStudentPassword control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtNewStudentPassword;
+
+        /// <summary>
         /// btnAddStudentToDatabase control.
         /// </summary>
         /// <remarks>
@@ -175,5 +184,32 @@ namespace ProjectFinal
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.GridView gvProfessorsForSubject;
+
+        /// <summary>
+        /// PanelAddProf control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel PanelAddProf;
+
+        /// <summary>
+        /// DropDownListProf control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList DropDownListProf;
+
+        /// <summary>
+        /// ButtonAddTeacher control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button ButtonAddTeacher;
     }
 }

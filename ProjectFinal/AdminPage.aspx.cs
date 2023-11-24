@@ -20,6 +20,29 @@ namespace ProjectFinal
                 LoadSubjectsDropDown();
                 //Load students into the StudentList
                 LoadUsersDropDown();
+
+                LoadProfessorsDropDown();
+            }
+        }
+
+        private void LoadProfessorsDropDown()
+        {
+            string databasePath = Server.MapPath("~/database2.db");
+            string connectionString = $"Data Source={databasePath};Version=3;";
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT id, name FROM user WHERE role_idrole = 2";
+                SQLiteCommand command = new SQLiteCommand(query, connection);
+                SQLiteDataReader reader = command.ExecuteReader();
+
+                DropDownListProf.DataSource = reader;
+                DropDownListProf.DataTextField = "name";
+                DropDownListProf.DataValueField = "id";
+                DropDownListProf.DataBind();
+
+                DropDownListProf.Items.Insert(0, new System.Web.UI.WebControls.ListItem("-- Select a User --", ""));
             }
         }
 
@@ -205,12 +228,12 @@ namespace ProjectFinal
                 }
 
                 // Show a success message (you can customize it as needed)
-                Response.Write("<script>alert('Student deleted from the subject successfully.');</script>");
+                Response.Write("Student deleted from the subject successfully");
             }
             catch (Exception ex)
             {
                 // In case of an error, show an error message (you can customize it as needed)
-                Response.Write("<script>alert('Error deleting student from the subject.');</script>");
+                Response.Write("Error deleting student from the subject.");
                 // You can also add logic to log the error if needed
             }
         }
@@ -269,26 +292,26 @@ namespace ProjectFinal
                                             }
 
                                             // Mostra un missatge d'èxit (pots adaptar-ho segons les teves necessitats)
-                                            Response.Write("<script>alert('Estudiant afegit a la signatura amb èxit.');</script>");
+                                            Response.Write("Estudiant afegit a la signatura amb èxit.");
                                         }
                                         else
                                         {
                                             // Mostra un missatge indicant que l'estudiant ja està afegit a aquesta assignatura
-                                            Response.Write("<script>alert('Aquest estudiant ja està afegit a aquesta signatura.');</script>");
+                                            Response.Write("Aquest estudiant ja està afegit a aquesta signatura.");
                                         }
                                     }
                                 }
                                 else
                                 {
                                     // Mostra un missatge indicant que l'assignatura no existeix
-                                    Response.Write("<script>alert('Aquesta assignatura no existeix.');</script>");
+                                    Response.Write("Aquesta assignatura no existeix");
                                 }
                             }
                         }
                         else
                         {
                             // Mostra un missatge indicant que l'estudiant no existeix
-                            Response.Write("<script>alert('Aquest estudiant no existeix.');</script>");
+                            Response.Write("Aquest estudiant no existeix");
                         }
                     }
                 }
@@ -329,6 +352,8 @@ namespace ProjectFinal
 
                 // Show the panel for adding a student to the subject
                 pnlAddStudent.Visible = true;
+
+                PanelAddProf.Visible = true;
             }
             else
             {
@@ -353,11 +378,12 @@ namespace ProjectFinal
             {
                 connection.Open();
 
-                string query = "SELECT id, name FROM user";
+                string query = "SELECT id, name FROM user WHERE role_idrole = 3";
                 SQLiteCommand command = new SQLiteCommand(query, connection);
                 SQLiteDataReader reader = command.ExecuteReader();
 
                 ddlUsers.DataSource = reader;
+
                 ddlUsers.DataTextField = "name";
                 ddlUsers.DataValueField = "id";
                 ddlUsers.DataBind();
@@ -365,6 +391,10 @@ namespace ProjectFinal
                 ddlUsers.Items.Insert(0, new System.Web.UI.WebControls.ListItem("-- Select a User --", ""));
             }
         }
+
+         
+        
+
 
         protected void btnAddStudentToSubject_Click(object sender, EventArgs e)
         {
@@ -388,13 +418,13 @@ namespace ProjectFinal
                 else
                 {
                     // Show a message that the selected user is not a student
-                    Response.Write("<script>alert('The selected user is not a student.');</script>");
+                    Response.Write("The selected user is not a student.");
                 }
             }
             else
             {
                 // Show a message indicating that all fields need to be filled
-                Response.Write("<script>alert('Please select a student and a subject.');</script>");
+                Response.Write("Please select a student and a subject.");
             }
         }
 
@@ -408,11 +438,12 @@ namespace ProjectFinal
             string newStudentNationality = txtNewStudentNationality.Text.Trim();
             string newStudentAddress = txtNewStudentAddress.Text.Trim();
             string newStudentUsername = txtNewStudentUsername.Text.Trim();
+            string newStudentPassword = txtNewStudentPassword.Text.Trim();
 
             if (!string.IsNullOrEmpty(newStudentName))
             {
                 // Add the new student to the database
-                AddStudentToDatabase(newStudentName, newStudentSurname, newStudentDateOfBirth, newStudentNationality, newStudentAddress, newStudentUsername);
+                AddStudentToDatabase(newStudentName, newStudentSurname, newStudentDateOfBirth, newStudentNationality, newStudentAddress, newStudentUsername,newStudentPassword);
 
                 // Clear the text boxes
                 txtNewStudentName.Text = "";
@@ -427,13 +458,13 @@ namespace ProjectFinal
             else
             {
                 // Show a message indicating that the student name needs to be filled
-                Response.Write("<script>alert('Please enter the new student's name.');</script>");
+                Response.Write("Please enter the new student's name");
             }
         }
 
         // ... (your existing code)
 
-        private void AddStudentToDatabase(string newStudentName, string newStudentSurname, DateTime newStudentDateOfBirth, string newStudentNationality, string newStudentAddress, string newStudentUsername)
+        private void AddStudentToDatabase(string newStudentName, string newStudentSurname, DateTime newStudentDateOfBirth, string newStudentNationality, string newStudentAddress, string newStudentUsername, string newStudentPassword)
         {
             try
             {
@@ -446,52 +477,68 @@ namespace ProjectFinal
                     connection.Open();
 
                     // Insert the new user into the user table
-                    string insertUserQuery = "INSERT INTO user (name, surrname, dateOfBirth, nationality, address, username, role_idrole) " +
-                                             "VALUES (@newStudentName, @newStudentSurname, @newStudentDateOfBirth, @newStudentNationality, @newStudentAddress, @newStudentUsername, 3)";
-                    using (SQLiteCommand insertUserCommand = new SQLiteCommand(insertUserQuery, connection))
+                    try
                     {
-                        // Add parameters to prevent SQL injection
-                        insertUserCommand.Parameters.AddWithValue("@newStudentName", newStudentName);
-                        insertUserCommand.Parameters.AddWithValue("@newStudentSurname", newStudentSurname);
-                        insertUserCommand.Parameters.AddWithValue("@newStudentDateOfBirth", newStudentDateOfBirth.ToString("yyyy-MM-dd"));
-                        insertUserCommand.Parameters.AddWithValue("@newStudentNationality", newStudentNationality);
-                        insertUserCommand.Parameters.AddWithValue("@newStudentAddress", newStudentAddress);
-                        insertUserCommand.Parameters.AddWithValue("@newStudentUsername", newStudentUsername);
+                        string insertUserQuery = "INSERT INTO user (name, surrname, password, username, role_idrole) " +
+                                             "VALUES (@newStudentName, @newStudentSurname, @newStudentPassword, @newStudentUsername,3)";
+                        using (SQLiteCommand insertUserCommand = new SQLiteCommand(insertUserQuery, connection))
+                        {
+                            // Add parameters to prevent SQL injection
+                            insertUserCommand.Parameters.AddWithValue("@newStudentName", newStudentName);
+                            insertUserCommand.Parameters.AddWithValue("@newStudentSurname", newStudentSurname);
+                            insertUserCommand.Parameters.AddWithValue("@newStudentUsername", newStudentUsername);
+                            insertUserCommand.Parameters.AddWithValue("@newStudentPassword", newStudentPassword);
 
-                        // Execute the insert command for the user
-                        insertUserCommand.ExecuteNonQuery();
+                            // Execute the insert command for the user
+                            insertUserCommand.ExecuteNonQuery();
+                        }
+                        
+                    }
+                    catch (Exception Ex) {
+                        Response.Write($"An error occurred: {Ex.Message}");
                     }
 
                     // Get the ID of the newly inserted user
-                    string getUserIdQuery = "SELECT last_insert_rowid()";
-                    using (SQLiteCommand getUserIdCommand = new SQLiteCommand(getUserIdQuery, connection))
+                    try
                     {
-                        int userId = Convert.ToInt32(getUserIdCommand.ExecuteScalar());
-
-                        // Insert the user into the student table
-                        string insertStudentQuery = "INSERT INTO student (dateOfBirth, nationality, address, user_id) " +
-                                                    "VALUES (@newStudentDateOfBirth, @newStudentNationality, @newStudentAddress, @userId)";
-                        using (SQLiteCommand insertStudentCommand = new SQLiteCommand(insertStudentQuery, connection))
+                        string getUserIdQuery = "SELECT last_insert_rowid()";
+                        using (SQLiteCommand getUserIdCommand = new SQLiteCommand(getUserIdQuery, connection))
                         {
-                            insertStudentCommand.Parameters.AddWithValue("@newStudentDateOfBirth", newStudentDateOfBirth.ToString("yyyy-MM-dd"));
-                            insertStudentCommand.Parameters.AddWithValue("@newStudentNationality", newStudentNationality);
-                            insertStudentCommand.Parameters.AddWithValue("@newStudentAddress", newStudentAddress);
-                            insertStudentCommand.Parameters.AddWithValue("@userId", userId);
+                            int userId = Convert.ToInt32(getUserIdCommand.ExecuteScalar());
 
-                            insertStudentCommand.ExecuteNonQuery();
+                            // Insert the user into the student table
+                            string insertStudentQuery = "INSERT INTO student (dateOfBirth, nationality, address, user_id) " +
+                                                        "VALUES (@newStudentDateOfBirth, @newStudentNationality, @newStudentAddress, @userId)";
+                            using (SQLiteCommand insertStudentCommand = new SQLiteCommand(insertStudentQuery, connection))
+                            {
+                                insertStudentCommand.Parameters.AddWithValue("@newStudentDateOfBirth", newStudentDateOfBirth.ToString("yyyy-MM-dd"));
+                                insertStudentCommand.Parameters.AddWithValue("@newStudentNationality", newStudentNationality);
+                                insertStudentCommand.Parameters.AddWithValue("@newStudentAddress", newStudentAddress);
+                                insertStudentCommand.Parameters.AddWithValue("@userId", userId);
+
+                                insertStudentCommand.ExecuteNonQuery();
+                            }
                         }
+                    } catch (Exception Ex)
+                    {
+                        Response.Write($"An error ocurred: {Ex.Message}");
                     }
 
                     // Show a success message (you can customize it as needed)
-                    Response.Write("<script>alert('New student added to the database successfully.');</script>");
+                    Response.Write("New student added to the database successfully");
                 }
             }
             catch (Exception ex)
             {
                 // In case of an error, show an error message (you can customize it as needed)
-                Response.Write("<script>alert('Error adding new student to the database.');</script>");
+                Response.Write(($"An error occurred: { ex.Message}"));
                 // You can also add logic to log the error if needed
             }
+        }
+
+        protected void ButtonAddTeacher_OnClick(object sender, EventArgs e)
+        {
+
         }
 
         // ... (your existing code)

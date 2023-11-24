@@ -34,6 +34,7 @@
                     <asp:BoundField DataField="id" HeaderText="User ID" />
                     <asp:BoundField DataField="name" HeaderText="Name" />
                     <asp:BoundField DataField="surrname" HeaderText="Surname" />
+                    <asp:BoundField DataField="password" HeaderText="Password" />
                     <asp:BoundField DataField="dateOfBirth" HeaderText="Date of Birth" />
                     <asp:BoundField DataField="nationality" HeaderText="Nationality" />
                     <asp:BoundField DataField="address" HeaderText="Address" />
@@ -50,6 +51,7 @@
     <asp:TextBox ID="txtNewStudentNationality" runat="server" placeholder="Nationality"></asp:TextBox>
     <asp:TextBox ID="txtNewStudentAddress" runat="server" placeholder="Address"></asp:TextBox>
     <asp:TextBox ID="txtNewStudentUsername" runat="server" placeholder="Username"></asp:TextBox>
+    <asp:TextBox ID="txtNewStudentPassword" runat="server" placeholder="password" TextMode="Password"></asp:TextBox>
     <asp:Button ID="btnAddStudentToDatabase" runat="server" Text="Add Student" OnClick="btnAddStudentToDatabase_Click" />
 </asp:Panel>
 
@@ -87,7 +89,6 @@
 <asp:Panel ID="pnlAddStudent" runat="server" Visible="false">
     <h3>Add Student to Subject:</h3>
     <asp:DropDownList ID="ddlUsers" runat="server" DataTextField="UserName" DataValueField="UserId" AppendDataBoundItems="true">
-        <asp:ListItem Text="-- Select a User --" Value="" />
     </asp:DropDownList>
     <asp:Button ID="Button1" runat="server" Text="Add Student" OnClick="btnAddStudentToSubject_Click" />
 </asp:Panel>
@@ -124,6 +125,13 @@
                     <asp:BoundField DataField="surrname" HeaderText="Surname" />
                 </Columns>
             </asp:GridView>
+
+                <asp:Panel ID="PanelAddProf" runat="server" Visible="false">
+    <h3>Add Professor to Subject:</h3>
+    <asp:DropDownList ID="DropDownListProf" runat="server" DataTextField="UserName" DataValueField="UserId" AppendDataBoundItems="true">
+    </asp:DropDownList>
+    <asp:Button ID="ButtonAddTeacher" runat="server" Text="Add Teacher" OnClick="ButtonAddTeacher_OnClick" />
+</asp:Panel>
 
         </div>
     </form>
