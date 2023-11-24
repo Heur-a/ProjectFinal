@@ -18,6 +18,8 @@ namespace ProjectFinal
 
                 // Load subjects into the DropDownList
                 LoadSubjectsDropDown();
+                //Load students into the StudentList
+                LoadUsersDropDown();
             }
         }
 
@@ -111,28 +113,7 @@ namespace ProjectFinal
             }
         }
 
-        protected void ddlSubjects_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            string selectedSubjectId = ddlSubjects.SelectedValue;
-
-            if (!string.IsNullOrEmpty(selectedSubjectId))
-            {
-                // Load students for the selected subject
-                LoadStudentsForSubject(selectedSubjectId);
-
-                // Load professors for the selected subject
-                LoadProfessorsForSubject(selectedSubjectId);
-            }
-            else
-            {
-                // If no subject is selected, clear the GridViews
-                gvStudentsForSubject.DataSource = null;
-                gvStudentsForSubject.DataBind();
-
-                gvProfessorsForSubject.DataSource = null;
-                gvProfessorsForSubject.DataBind();
-            }
-        }
+       
 
         private void LoadStudentsForSubject(string subjectId)
         {
@@ -233,5 +214,301 @@ namespace ProjectFinal
                 // You can also add logic to log the error if needed
             }
         }
+
+        private void AddStudentToSubject(string studentName, string subjectName)
+        {
+            try
+            {
+                // Estableix la connexió amb la base de dades
+                string databasePath = Server.MapPath("~/database2.db");
+                string connectionString = $"Data Source={databasePath};Version=3;";
+
+                using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Obtenir l'ID de l'estudiant
+                    string studentIdQuery = "SELECT id FROM user WHERE name = @studentName";
+                    using (SQLiteCommand studentIdCommand = new SQLiteCommand(studentIdQuery, connection))
+                    {
+                        studentIdCommand.Parameters.AddWithValue("@studentName", studentName);
+                        string userId = studentIdCommand.ExecuteScalar()?.ToString();
+
+                        if (userId != null)
+                        {
+                            // Obtenir l'ID de l'assignatura
+                            string subjectIdQuery = "SELECT idsubject FROM subject WHERE subjectName = @subjectName";
+                            using (SQLiteCommand subjectIdCommand = new SQLiteCommand(subjectIdQuery, connection))
+                            {
+                                subjectIdCommand.Parameters.AddWithValue("@subjectName", subjectName);
+                                string subjectId = subjectIdCommand.ExecuteScalar()?.ToString();
+
+                                if (subjectId != null)
+                                {
+                                    // Comprova si ja existeix una entrada per a aquest estudiant i aquesta assignatura
+                                    string checkQuery = "SELECT COUNT(*) FROM user_has_subject WHERE user_id = @userId AND subject_idsubject = @subjectId";
+                                    using (SQLiteCommand checkCommand = new SQLiteCommand(checkQuery, connection))
+                                    {
+                                        checkCommand.Parameters.AddWithValue("@userId", userId);
+                                        checkCommand.Parameters.AddWithValue("@subjectId", subjectId);
+
+                                        int existingEntries = Convert.ToInt32(checkCommand.ExecuteScalar());
+
+                                        if (existingEntries == 0)
+                                        {
+                                            // Crea la comanda SQL per afegir l'estudiant a la signatura
+                                            string insertQuery = "INSERT INTO user_has_subject (user_id, subject_idsubject) VALUES (@userId, @subjectId);";
+                                            using (SQLiteCommand insertCommand = new SQLiteCommand(insertQuery, connection))
+                                            {
+                                                // Afegeix els paràmetres per evitar injeccions SQL
+                                                insertCommand.Parameters.AddWithValue("@userId", userId);
+                                                insertCommand.Parameters.AddWithValue("@subjectId", subjectId);
+
+                                                // Executa la comanda d'afegir
+                                                insertCommand.ExecuteNonQuery();
+                                            }
+
+                                            // Mostra un missatge d'èxit (pots adaptar-ho segons les teves necessitats)
+                                            Response.Write("<script>alert('Estudiant afegit a la signatura amb èxit.');</script>");
+                                        }
+                                        else
+                                        {
+                                            // Mostra un missatge indicant que l'estudiant ja està afegit a aquesta assignatura
+                                            Response.Write("<script>alert('Aquest estudiant ja està afegit a aquesta signatura.');</script>");
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    // Mostra un missatge indicant que l'assignatura no existeix
+                                    Response.Write("<script>alert('Aquesta assignatura no existeix.');</script>");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Mostra un missatge indicant que l'estudiant no existeix
+                            Response.Write("<script>alert('Aquest estudiant no existeix.');</script>");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // En cas d'error, mostra un missatge d'error (pots adaptar-ho segons les teves necessitats)
+                Response.Write("<script>alert('Error en afegir l'estudiant a la signatura.');</script>");
+                // També pots afegir lògica per registrar l'error si és necessari
+            }
+        }
+      
+
+        
+
+        private bool IsStudent(string userId)
+        {
+            // Implement logic to check if the user with the given ID has the role of a student
+            // You can query the database or use any other method to check the role
+            // Return true if the user is a student, otherwise return false
+            // Example: return GetUserRole(userId) == "Student";
+            return true; // Modify this based on your actual logic
+        }
+
+        // ... (existing code)
+
+        protected void ddlSubjects_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string selectedSubjectId = ddlSubjects.SelectedValue;
+
+            if (!string.IsNullOrEmpty(selectedSubjectId))
+            {
+                // Load students for the selected subject
+                LoadStudentsForSubject(selectedSubjectId);
+
+                // Load professors for the selected subject
+                LoadProfessorsForSubject(selectedSubjectId);
+
+                // Show the panel for adding a student to the subject
+                pnlAddStudent.Visible = true;
+            }
+            else
+            {
+                // If no subject is selected, clear the GridViews and hide the panel
+                gvStudentsForSubject.DataSource = null;
+                gvStudentsForSubject.DataBind();
+
+                gvProfessorsForSubject.DataSource = null;
+                gvProfessorsForSubject.DataBind();
+
+                pnlAddStudent.Visible = false;
+            }
+        }
+
+        
+
+        private void LoadUsersDropDown()
+        {
+            string databasePath = Server.MapPath("~/database2.db");
+            string connectionString = $"Data Source={databasePath};Version=3;";
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT id, name FROM user";
+                SQLiteCommand command = new SQLiteCommand(query, connection);
+                SQLiteDataReader reader = command.ExecuteReader();
+
+                ddlUsers.DataSource = reader;
+                ddlUsers.DataTextField = "name";
+                ddlUsers.DataValueField = "id";
+                ddlUsers.DataBind();
+
+                ddlUsers.Items.Insert(0, new System.Web.UI.WebControls.ListItem("-- Select a User --", ""));
+            }
+        }
+
+        protected void btnAddStudentToSubject_Click(object sender, EventArgs e)
+        {
+            string selectedStudentId = ddlUsers.SelectedValue;
+            string selectedSubjectId = ddlSubjects.SelectedValue;
+
+            if (!string.IsNullOrEmpty(selectedStudentId) && !string.IsNullOrEmpty(selectedSubjectId))
+            {
+                // Check if the selected user has the role of a student
+                if (IsStudent(selectedStudentId))
+                {
+                    // Add the student to the subject
+                    AddStudentToSubject(selectedStudentId, selectedSubjectId);
+
+                    // Clear the selected student in the DropDownList
+                    ddlUsers.ClearSelection();
+
+                    // Trigger a page refresh
+                    Response.Redirect(Request.RawUrl);
+                }
+                else
+                {
+                    // Show a message that the selected user is not a student
+                    Response.Write("<script>alert('The selected user is not a student.');</script>");
+                }
+            }
+            else
+            {
+                // Show a message indicating that all fields need to be filled
+                Response.Write("<script>alert('Please select a student and a subject.');</script>");
+            }
+        }
+
+        // ... (existing code)
+
+        protected void btnAddStudentToDatabase_Click(object sender, EventArgs e)
+        {
+            string newStudentName = txtNewStudentName.Text.Trim();
+            string newStudentSurname = txtNewStudentSurname.Text.Trim();
+            DateTime.TryParse(txtNewStudentDateOfBirth.Text.Trim(), out DateTime newStudentDateOfBirth);
+            string newStudentNationality = txtNewStudentNationality.Text.Trim();
+            string newStudentAddress = txtNewStudentAddress.Text.Trim();
+            string newStudentUsername = txtNewStudentUsername.Text.Trim();
+
+            if (!string.IsNullOrEmpty(newStudentName))
+            {
+                // Add the new student to the database
+                AddStudentToDatabase(newStudentName, newStudentSurname, newStudentDateOfBirth, newStudentNationality, newStudentAddress, newStudentUsername);
+
+                // Clear the text boxes
+                txtNewStudentName.Text = "";
+                txtNewStudentSurname.Text = "";
+                txtNewStudentDateOfBirth.Text = "";
+                txtNewStudentNationality.Text = "";
+                txtNewStudentAddress.Text = "";
+
+                // Trigger a page refresh
+                Response.Redirect(Request.RawUrl);
+            }
+            else
+            {
+                // Show a message indicating that the student name needs to be filled
+                Response.Write("<script>alert('Please enter the new student's name.');</script>");
+            }
+        }
+
+        // ... (your existing code)
+
+        private void AddStudentToDatabase(string newStudentName, string newStudentSurname, DateTime newStudentDateOfBirth, string newStudentNationality, string newStudentAddress, string newStudentUsername)
+        {
+            try
+            {
+                // Establish connection with the database
+                string databasePath = Server.MapPath("~/database2.db");
+                string connectionString = $"Data Source={databasePath};Version=3;";
+
+                using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Insert the new user into the user table
+                    string insertUserQuery = "INSERT INTO user (name, surrname, dateOfBirth, nationality, address, username, role_idrole) " +
+                                             "VALUES (@newStudentName, @newStudentSurname, @newStudentDateOfBirth, @newStudentNationality, @newStudentAddress, @newStudentUsername, 3)";
+                    using (SQLiteCommand insertUserCommand = new SQLiteCommand(insertUserQuery, connection))
+                    {
+                        // Add parameters to prevent SQL injection
+                        insertUserCommand.Parameters.AddWithValue("@newStudentName", newStudentName);
+                        insertUserCommand.Parameters.AddWithValue("@newStudentSurname", newStudentSurname);
+                        insertUserCommand.Parameters.AddWithValue("@newStudentDateOfBirth", newStudentDateOfBirth.ToString("yyyy-MM-dd"));
+                        insertUserCommand.Parameters.AddWithValue("@newStudentNationality", newStudentNationality);
+                        insertUserCommand.Parameters.AddWithValue("@newStudentAddress", newStudentAddress);
+                        insertUserCommand.Parameters.AddWithValue("@newStudentUsername", newStudentUsername);
+
+                        // Execute the insert command for the user
+                        insertUserCommand.ExecuteNonQuery();
+                    }
+
+                    // Get the ID of the newly inserted user
+                    string getUserIdQuery = "SELECT last_insert_rowid()";
+                    using (SQLiteCommand getUserIdCommand = new SQLiteCommand(getUserIdQuery, connection))
+                    {
+                        int userId = Convert.ToInt32(getUserIdCommand.ExecuteScalar());
+
+                        // Insert the user into the student table
+                        string insertStudentQuery = "INSERT INTO student (dateOfBirth, nationality, address, user_id) " +
+                                                    "VALUES (@newStudentDateOfBirth, @newStudentNationality, @newStudentAddress, @userId)";
+                        using (SQLiteCommand insertStudentCommand = new SQLiteCommand(insertStudentQuery, connection))
+                        {
+                            insertStudentCommand.Parameters.AddWithValue("@newStudentDateOfBirth", newStudentDateOfBirth.ToString("yyyy-MM-dd"));
+                            insertStudentCommand.Parameters.AddWithValue("@newStudentNationality", newStudentNationality);
+                            insertStudentCommand.Parameters.AddWithValue("@newStudentAddress", newStudentAddress);
+                            insertStudentCommand.Parameters.AddWithValue("@userId", userId);
+
+                            insertStudentCommand.ExecuteNonQuery();
+                        }
+                    }
+
+                    // Show a success message (you can customize it as needed)
+                    Response.Write("<script>alert('New student added to the database successfully.');</script>");
+                }
+            }
+            catch (Exception ex)
+            {
+                // In case of an error, show an error message (you can customize it as needed)
+                Response.Write("<script>alert('Error adding new student to the database.');</script>");
+                // You can also add logic to log the error if needed
+            }
+        }
+
+        // ... (your existing code)
+
+
+        // ... (existing code)
+
     }
 }
+
+
+
+
+
+
+
+
+
+
+    

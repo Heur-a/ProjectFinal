@@ -9,23 +9,17 @@ CREATE TABLE IF NOT EXISTS "student" (
 	"nationality"	INTEGER NOT NULL,
 	"address"	TEXT NOT NULL,
 	"user_id"	INTEGER NOT NULL,
-	FOREIGN KEY("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-	PRIMARY KEY("user_id")
-);
-CREATE TABLE IF NOT EXISTS "subject" (
-	"idsubject"	INTEGER NOT NULL,
-	"sunbjectName"	TEXT NOT NULL,
-	"description"	TEXT,
-	PRIMARY KEY("idsubject")
+	PRIMARY KEY("user_id"),
+	FOREIGN KEY("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "subject_has_user" (
 	"subject_idsubject"	INTEGER NOT NULL,
 	"user_id"	INTEGER NOT NULL,
 	"YearCoursed"	TEXT NOT NULL,
 	"credits"	INTEGER NOT NULL,
+	PRIMARY KEY("subject_idsubject","user_id"),
 	FOREIGN KEY("subject_idsubject") REFERENCES "subject"("idsubject") ON DELETE CASCADE ON UPDATE CASCADE,
-	FOREIGN KEY("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-	PRIMARY KEY("subject_idsubject","user_id")
+	FOREIGN KEY("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "user" (
 	"name"	TEXT NOT NULL,
@@ -34,15 +28,25 @@ CREATE TABLE IF NOT EXISTS "user" (
 	"id"	INTEGER,
 	"username"	TEXT NOT NULL UNIQUE,
 	"role_idrole"	INTEGER NOT NULL,
-	FOREIGN KEY("role_idrole") REFERENCES "role"("idrole") ON DELETE CASCADE ON UPDATE CASCADE,
-	PRIMARY KEY("id" AUTOINCREMENT)
+	PRIMARY KEY("id" AUTOINCREMENT),
+	FOREIGN KEY("role_idrole") REFERENCES "role"("idrole") ON DELETE CASCADE ON UPDATE CASCADE
+);
+CREATE TABLE IF NOT EXISTS "subject" (
+	"idsubject"	INTEGER NOT NULL,
+	"subjectName"	TEXT NOT NULL,
+	"description"	TEXT,
+	PRIMARY KEY("idsubject")
 );
 INSERT INTO "role" VALUES (1,'admin');
 INSERT INTO "role" VALUES (2,'profesor');
 INSERT INTO "role" VALUES (3,'user');
+INSERT INTO "student" VALUES ('1977-01-01','spanish','c/ta mare',1);
+INSERT INTO "subject_has_user" VALUES (1,1,'2003',6);
 INSERT INTO "user" VALUES ('hola','putos','1234',0,'admin',1);
 INSERT INTO "user" VALUES ('Jerez','Frontera','1234',1,'andalu',3);
 INSERT INTO "user" VALUES ('Profesor','Profesorez','1234',2,'prof',2);
+INSERT INTO "subject" VALUES (1,'mates','very good for you');
+INSERT INTO "subject" VALUES (2,'',NULL);
 CREATE INDEX IF NOT EXISTS "idx_subject_has_user_user_id" ON "subject_has_user" (
 	"user_id"
 );
