@@ -42,11 +42,14 @@
             <br />
 
             <h2>Subjects in Current Academic Year</h2>
+            <asp:Label ID="lblSemester" runat="server" Text="Enter Semester:" AssociatedControlID="txtSemester"></asp:Label>
+            <asp:TextBox ID="txtSemester" runat="server"></asp:TextBox>
+            <asp:Button ID="btnLoadSubjects" runat="server" Text="Load Subjects" OnClick="btnLoadSubjects_Click" />
+
             <asp:GridView ID="gridSubjects" runat="server" AutoGenerateColumns="False">
                 <Columns>
                     <asp:BoundField DataField="SubjectName" HeaderText="Subject Name" SortExpression="SubjectName" />
                     <asp:BoundField DataField="Credits" HeaderText="Credits" SortExpression="Credits" />
-                    <asp:BoundField DataField="Semester" HeaderText="Semester" SortExpression="Semester" />
                     <asp:BoundField DataField="Professor" HeaderText="Professor" SortExpression="Professor" />
                 </Columns>
             </asp:GridView>

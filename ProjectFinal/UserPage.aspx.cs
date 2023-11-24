@@ -1,4 +1,4 @@
-﻿    using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity.Infrastructure;
@@ -24,7 +24,7 @@ namespace ProjectFinal
                 LoadUserInfo(userId);
 
                 // Call the updated method to load and bind student academic information
-                LoadStudentAcademicInfo(userId);
+                //LoadStudentAcademicInfo(userId);
             }
         }
 
@@ -48,6 +48,16 @@ namespace ProjectFinal
 
             // Display a message indicating the update was successful
             lblMessage.Text = "Personal information updated successfully!";
+        }
+
+        protected void btnLoadSubjects_Click(object sender, EventArgs e)
+        {
+            int userId = (int)Session["UserID"];
+            // Get the academic year from the TextBox
+            string semester = txtSemester.Text.Trim();
+
+            // Call a method to load and display subjects based on the entered academic year
+            LoadSubjectsForSemester(semester, userId);
         }
 
 
@@ -130,7 +140,7 @@ namespace ProjectFinal
             }
         }
 
-        private void LoadStudentAcademicInfo(int userId)
+        private void LoadSubjectsForSemester(string Semester, int userId)
         {
             // Use Server.MapPath to get the physical path of the database file
             string databasePath = Server.MapPath("~/database2.db");
@@ -138,19 +148,20 @@ namespace ProjectFinal
 
             // Replace the following query with your actual query to retrieve student academic information
             string sqlQuery = @"
-            SELECT
-                s.subjectName AS SubjectName,
-                shu.credits AS Credits,
-                shu.YearCoursed AS Semester,
-                u.name || ' ' || u.surrname AS Professor
-            FROM
-                subject s
-            INNER JOIN
-                subject_has_user shu ON s.idsubject = shu.subject_idsubject
-            INNER JOIN
-                [user] u ON shu.user_id = u.id
-            WHERE
-                u.id = @UserId;";
+        SELECT
+            s.subjectName AS SubjectName,
+            shu.credits AS Credits,
+            u.name || ' ' || u.surrname AS Professor
+        FROM
+            subject s
+        INNER JOIN
+            subject_has_user shu ON s.idsubject = shu.subject_idsubject
+        INNER JOIN
+            [user] u ON shu.user_id = u.id
+        WHERE  
+            shu.YearCoursed = @Semester
+            AND u.role_idrole = (SELECT idrole FROM role WHERE role = 'profesor');
+";
 
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
             {
@@ -158,7 +169,9 @@ namespace ProjectFinal
 
                 using (SQLiteCommand command = new SQLiteCommand(sqlQuery, connection))
                 {
-                    command.Parameters.AddWithValue("@UserId", userId);
+                    // Replace @StudentId and @Semester with actual values
+                    command.Parameters.AddWithValue("@StudentId", userId);
+                    command.Parameters.AddWithValue("@Semester", Semester);
 
                     using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(command))
                     {
@@ -172,5 +185,6 @@ namespace ProjectFinal
                 }
             }
         }
+
     }
 }
