@@ -84,9 +84,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="index.aspx" />
-    <Content Include="PaginaAdmin.aspx" />
-    <Content Include="PaginaProfesor.aspx" />
-    <Content Include="PaginaUser.aspx" />
+    <Content Include="AdminPage.aspx" />
+    <Content Include="TeacherPage.aspx" />
+    <Content Include="UserPage.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -98,26 +98,26 @@
     <Compile Include="index.aspx.designer.cs">
       <DependentUpon>index.aspx</DependentUpon>
     </Compile>
-    <Compile Include="PaginaAdmin.aspx.cs">
-      <DependentUpon>PaginaAdmin.aspx</DependentUpon>
+    <Compile Include="AdminPage.aspx.cs">
+      <DependentUpon>AdminPage.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="PaginaAdmin.aspx.designer.cs">
-      <DependentUpon>PaginaAdmin.aspx</DependentUpon>
+    <Compile Include="AdminPage.aspx.designer.cs">
+      <DependentUpon>AdminPage.aspx</DependentUpon>
     </Compile>
-    <Compile Include="PaginaProfesor.aspx.cs">
-      <DependentUpon>PaginaProfesor.aspx</DependentUpon>
+    <Compile Include="TeacherPage.aspx.cs">
+      <DependentUpon>TeacherPage.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="PaginaProfesor.aspx.designer.cs">
-      <DependentUpon>PaginaProfesor.aspx</DependentUpon>
+    <Compile Include="TeacherPage.aspx.designer.cs">
+      <DependentUpon>TeacherPage.aspx</DependentUpon>
     </Compile>
-    <Compile Include="PaginaUser.aspx.cs">
-      <DependentUpon>PaginaUser.aspx</DependentUpon>
+    <Compile Include="UserPage.aspx.cs">
+      <DependentUpon>UserPage.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="PaginaUser.aspx.designer.cs">
-      <DependentUpon>PaginaUser.aspx</DependentUpon>
+    <Compile Include="UserPage.aspx.designer.cs">
+      <DependentUpon>UserPage.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

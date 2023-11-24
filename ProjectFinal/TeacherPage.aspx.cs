@@ -7,7 +7,7 @@ using System.Web.UI.WebControls;
 
 namespace ProjectFinal
 {
-    public partial class PaginaProfesor : System.Web.UI.Page
+    public partial class TeacherPage : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
