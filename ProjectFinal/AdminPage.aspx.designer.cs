@@ -159,6 +159,15 @@ namespace ProjectFinal
         protected global::System.Web.UI.WebControls.DropDownList ddlUsers;
 
         /// <summary>
+        /// DateAddStudentSubject control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox DateAddStudentSubject;
+
+        /// <summary>
         /// Button1 control.
         /// </summary>
         /// <remarks>
@@ -202,6 +211,15 @@ namespace ProjectFinal
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList DropDownListProf;
+
+        /// <summary>
+        /// TextBoxProfDate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox TextBoxProfDate;
 
         /// <summary>
         /// ButtonAddTeacher control.

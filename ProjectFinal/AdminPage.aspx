@@ -89,7 +89,9 @@
 <asp:Panel ID="pnlAddStudent" runat="server" Visible="false">
     <h3>Add Student to Subject:</h3>
     <asp:DropDownList ID="ddlUsers" runat="server" DataTextField="UserName" DataValueField="UserId" AppendDataBoundItems="true">
+       
     </asp:DropDownList>
+    <asp:TextBox ID="DateAddStudentSubject" runat="server" placeholder="dd-mm-YYYY" TextMode="DateTime"></asp:TextBox>
     <asp:Button ID="Button1" runat="server" Text="Add Student" OnClick="btnAddStudentToSubject_Click" />
 </asp:Panel>
 
@@ -129,7 +131,10 @@
                 <asp:Panel ID="PanelAddProf" runat="server" Visible="false">
     <h3>Add Professor to Subject:</h3>
     <asp:DropDownList ID="DropDownListProf" runat="server" DataTextField="UserName" DataValueField="UserId" AppendDataBoundItems="true">
+        
     </asp:DropDownList>
+                    <asp:TextBox ID="TextBoxProfDate" runat="server" Placeholder="Date.." TextMode="Date"></asp:TextBox>
+
     <asp:Button ID="ButtonAddTeacher" runat="server" Text="Add Teacher" OnClick="ButtonAddTeacher_OnClick" />
 </asp:Panel>
 
