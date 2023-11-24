@@ -150,6 +150,33 @@ namespace ProjectFinal
         protected global::System.Web.UI.WebControls.Button btnUpdate;
 
         /// <summary>
+        /// lblSemester control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblSemester;
+
+        /// <summary>
+        /// txtSemester control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtSemester;
+
+        /// <summary>
+        /// btnLoadSubjects control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnLoadSubjects;
+
+        /// <summary>
         /// gridSubjects control.
         /// </summary>
         /// <remarks>
